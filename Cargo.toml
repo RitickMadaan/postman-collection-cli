@@ -1,8 +1,12 @@
 [package]
-name = "postman-collection-cli"
+name = "pocc"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = [ "Ritick Madaan <ritickmadaan57@gmail.com>" ]
+description = "A CLI to play with postman collections(v2.1.0) inspired by [password-store](https://www.passwordstore.org/)"
 
 [dependencies]
+clap = { version = "4.3.0", features = ["derive"] }
+serde = "1.0.163"
+serde_json = "1.0.96"
+url = { version = "2.3.1", features = ["serde"] }
