@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use serde_json::Value;
+use serde_json::{Value};
 use serde::Deserialize;
 
 //NOTE the Collection type is generated in reference to
@@ -7,9 +7,9 @@ use serde::Deserialize;
 
 #[allow(non_snake_case)]
 #[derive(Deserialize)]
-struct Collection {
+pub struct Collection {
     info: Information,
-    item: Items,
+    item: Vec<Items>,
     event: Option<Value>,
     variable: Option<Value>,
     protocolProfileBehavior: Option<Value>,
@@ -26,6 +26,7 @@ struct Information {
 }
 
 #[derive(Deserialize)]
+#[serde(untagged)]
 enum Items {
     Item(Item),
     Folder(Folder)
@@ -38,7 +39,7 @@ struct Folder {
     description: Option<Value>,
     variable: Option<Value>,
     item: Vec<Items>,
-    event: Vec<Value>,
+    event: Option<Vec<Value>>,
     auth: Option<Auth>,
     protocolProfileBehavior: Option<Value>
 }
@@ -99,6 +100,7 @@ struct Item {
 //TODOP this might be a good candidate for custom deseralization
 //If a string, the string is assumed to be the request URL and the method is assumed to be 'GET'.
 #[derive(Deserialize)]
+#[serde(untagged)]
 enum Request {
     String(String),
     RequestStruct(RequestStruct)//TODOP correct this
@@ -110,13 +112,14 @@ struct RequestStruct {
     auth: Option<Auth>,
     proxy: Option<Value>,
     certificate: Option<Value>,
-    method: MethodEnum,
+    method: Method,
     description: Option<Value>,
     header: Header,
-    body: Body,
+    body: Option<Body>,
 }
 
 #[derive(Deserialize)]
+#[serde(untagged)]
 enum Header {
     String(String),
     HeaderList(Vec<HeaderStruct>)
@@ -134,6 +137,7 @@ struct HeaderStruct {
 //If object, contains the complete broken-down URL for this request.
 //If string, contains the literal request URL.
 #[derive(Deserialize)]
+#[serde(untagged)]
 enum Url {
    String(String),
    UrlStruct(UrlStruct)
@@ -143,22 +147,24 @@ enum Url {
 struct UrlStruct {
     //The string representation of the request URL, including the protocol, host, path, hash, query parameter(s) and path variable(s).
     raw: String,
-    protocol: String,
+    protocol: Option<String>,
     host: Host,
     path: Path,
-    port: String,
-    query: Vec<QueryParam>,
-    hash: String,
-    variable: Vec<Value>
+    port: Option<String>,
+    query: Option<Vec<QueryParam>>,
+    hash: Option<String>,
+    variable: Option<Vec<Value>>
 }
 
 #[derive(Deserialize)]
+#[serde(untagged)]
 enum Host {
     String(String),
-    ArrString(Vec<String>),
+    VecStr(Vec<String>),
 }
 
 #[derive(Deserialize)]
+#[serde(untagged)]
 enum Path {
     String(String),
     ArrString(Vec<String>)
@@ -173,7 +179,8 @@ struct QueryParam {
 }
 
 #[derive(Deserialize)]
-enum MethodEnum {
+#[serde(untagged)]
+enum Method {
     GET,
     PUT,
     POST,

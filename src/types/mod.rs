@@ -1,1 +1,2 @@
-pub mod postman;
+mod postman;
+pub use postman::Collection;
