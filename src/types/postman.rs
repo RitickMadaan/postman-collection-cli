@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use serde::Deserialize;
+use serde::{Deserialize};
 use serde_json::Value;
 
 //NOTE the Collection type is generated in reference to
@@ -103,7 +103,7 @@ struct Item {
 #[serde(untagged)]
 enum Request {
     String(String),
-    RequestStruct(RequestStruct), //TODOP correct this
+    RequestStruct(RequestStruct),
 }
 
 #[derive(Deserialize)]
@@ -149,7 +149,7 @@ struct UrlStruct {
     raw: String,
     protocol: Option<String>,
     host: Host,
-    path: Path,
+    path: Option<Path>,
     port: Option<String>,
     query: Option<Vec<QueryParam>>,
     hash: Option<String>,
