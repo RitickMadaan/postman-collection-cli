@@ -1,6 +1,6 @@
 #![allow(dead_code)]
-use serde_json::{Value};
 use serde::Deserialize;
+use serde_json::Value;
 
 //NOTE the Collection type is generated in reference to
 //https://schema.postman.com/collection/json/v2.1.0/draft-07/docs/index.html
@@ -21,15 +21,15 @@ struct Information {
     r#_postman_id: Option<String>,
     description: Option<Value>,
     version: Option<Value>,
-    schema: Option<url::Url> //TODOP this is a mandatory field, validate url deseralization and
-                             //update type to mandatory
+    schema: Option<url::Url>, //TODOP this is a mandatory field, validate url deseralization and
+                              //update type to mandatory
 }
 
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Items {
     Item(Item),
-    Folder(Folder)
+    Folder(Folder),
 }
 
 #[allow(non_snake_case)]
@@ -41,7 +41,7 @@ struct Folder {
     item: Vec<Items>,
     event: Option<Vec<Value>>,
     auth: Option<Auth>,
-    protocolProfileBehavior: Option<Value>
+    protocolProfileBehavior: Option<Value>,
 }
 
 #[derive(Deserialize)]
@@ -61,10 +61,10 @@ struct Auth {
 }
 
 #[derive(Deserialize)]
-struct AuthAttr{
+struct AuthAttr {
     key: String,
     value: Option<Value>,
-    r#type: String
+    r#type: String,
 }
 
 #[allow(non_camel_case_types)]
@@ -81,7 +81,7 @@ enum AuthType {
     noauth,
     oauth1,
     oauth2,
-    ntlm
+    ntlm,
 }
 
 #[derive(Deserialize)]
@@ -94,7 +94,7 @@ struct Item {
     event: Option<Value>,
     request: Request,
     response: Option<Vec<Value>>,
-    protocolProfileBehavior: Option<Value>
+    protocolProfileBehavior: Option<Value>,
 }
 
 //TODOP this might be a good candidate for custom deseralization
@@ -103,7 +103,7 @@ struct Item {
 #[serde(untagged)]
 enum Request {
     String(String),
-    RequestStruct(RequestStruct)//TODOP correct this
+    RequestStruct(RequestStruct), //TODOP correct this
 }
 
 #[derive(Deserialize)]
@@ -122,7 +122,7 @@ struct RequestStruct {
 #[serde(untagged)]
 enum Header {
     String(String),
-    HeaderList(Vec<HeaderStruct>)
+    HeaderList(Vec<HeaderStruct>),
 }
 
 #[derive(Deserialize)]
@@ -139,8 +139,8 @@ struct HeaderStruct {
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Url {
-   String(String),
-   UrlStruct(UrlStruct)
+    String(String),
+    UrlStruct(UrlStruct),
 }
 
 #[derive(Deserialize)]
@@ -153,7 +153,7 @@ struct UrlStruct {
     port: Option<String>,
     query: Option<Vec<QueryParam>>,
     hash: Option<String>,
-    variable: Option<Vec<Value>>
+    variable: Option<Vec<Value>>,
 }
 
 #[derive(Deserialize)]
@@ -167,7 +167,7 @@ enum Host {
 #[serde(untagged)]
 enum Path {
     String(String),
-    ArrString(Vec<String>)
+    ArrString(Vec<String>),
 }
 
 #[derive(Deserialize)]
@@ -175,7 +175,7 @@ struct QueryParam {
     key: Option<String>,
     value: Option<String>,
     disabled: bool,
-    description: Value
+    description: Value,
 }
 
 #[derive(Deserialize)]
@@ -196,7 +196,7 @@ enum Method {
     UNLOCK,
     PROPFIND,
     VIEW,
-    String(String)
+    String(String),
 }
 
 #[derive(Deserialize)]
@@ -214,7 +214,7 @@ struct Body {
 #[derive(Deserialize)]
 struct File {
     src: Option<String>,
-    content: Option<String>
+    content: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -222,7 +222,7 @@ struct UrlEncodedParam {
     key: String,
     value: Option<String>,
     disabled: Option<bool>,
-    description: Option<Value>
+    description: Option<Value>,
 }
 
 #[allow(non_camel_case_types)]
