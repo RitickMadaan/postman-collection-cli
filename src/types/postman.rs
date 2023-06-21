@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_json::Value;
 
 //NOTE the Collection type is generated in reference to
