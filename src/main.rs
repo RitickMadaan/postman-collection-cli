@@ -1,16 +1,18 @@
 mod types;
+mod args;
+mod utils;
 
 use clap::Parser;
 use std::fs;
-use types::Collection;
+use types::postman::Collection;
 
 #[derive(Parser)]
 #[command(author, version)] // from Cargo.toml
 struct Cli {
-    ///get curl from a request
+    ///get curl of the request
     #[arg(short, long, value_name = "collection/folder/../request_name")]
     curl: Option<String>,
-    ///run a request
+    ///process the request and return the response
     #[arg(short, long, value_name = "collection/folder/../request_name")]
     direct: Option<String>,
 }
@@ -20,16 +22,16 @@ fn main() {
     //****************
     let file_path = "../../TestCollection.postman_collection.json";
     let file_content = fs::read_to_string(file_path).unwrap();
-    let _collection: Collection = serde_json::from_str(file_content.as_str())
+    let collection: Collection = serde_json::from_str(file_content.as_str())
         .expect("Unable to parse collection {file_path}");
 
     //****************
     //
     match pocc {
-        Cli { curl: Some(c), .. } => println!("give curl here for {c}"),
+        Cli { curl: Some(path), .. } => collection.get_curl(path),
         Cli {
-            direct: Some(d), ..
-        } => println!("give response from the request run for {d}"),
+            direct: Some(path), ..
+        } => collection.direct(path),
         _ => println!("give all the requests found"),
     }
 }

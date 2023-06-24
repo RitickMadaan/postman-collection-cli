@@ -1,21 +1,24 @@
 #![allow(dead_code)]
-use serde::Deserialize;
+
+use std::fmt::{Display, self};
+
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 //NOTE the Collection type is generated in reference to
 //https://schema.postman.com/collection/json/v2.1.0/draft-07/docs/index.html
 
 #[allow(non_snake_case)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Collection {
     info: Information,
-    item: Vec<Items>,
+    pub item: Vec<Items>,
     event: Option<Value>,
     variable: Option<Value>,
     protocolProfileBehavior: Option<Value>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct Information {
     name: String,
     r#_postman_id: Option<String>,
@@ -25,33 +28,33 @@ struct Information {
                               //update type to mandatory
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(untagged)]
-enum Items {
+pub enum Items {
     Item(Item),
     Folder(Folder),
 }
 
 #[allow(non_snake_case)]
-#[derive(Deserialize)]
-struct Folder {
-    name: Option<String>,
+#[derive(Deserialize, Serialize)]
+pub struct Folder {
+    pub name: Option<String>,
     description: Option<Value>,
     variable: Option<Value>,
-    item: Vec<Items>,
+    pub item: Vec<Items>,
     event: Option<Vec<Value>>,
-    auth: Option<Auth>,
+    pub auth: Option<Auth>,
     protocolProfileBehavior: Option<Value>,
 }
 
-#[derive(Deserialize)]
-struct Auth {
-    r#type: AuthType,
+#[derive(Deserialize, Serialize, Clone)]
+pub struct Auth {
+    pub r#type: AuthType,
     noauth: Option<Value>,
     apikey: Option<Vec<AuthAttr>>,
     awsv4: Option<Vec<AuthAttr>>,
-    basic: Option<Vec<AuthAttr>>,
-    bearer: Option<Vec<AuthAttr>>,
+    pub basic: Option<Vec<AuthAttr>>,
+    pub bearer: Option<Vec<AuthAttr>>,
     digest: Option<Vec<AuthAttr>>,
     edgegrid: Option<Vec<AuthAttr>>,
     hawk: Option<Vec<AuthAttr>>,
@@ -60,16 +63,29 @@ struct Auth {
     oauth2: Option<Vec<AuthAttr>>,
 }
 
-#[derive(Deserialize)]
-struct AuthAttr {
-    key: String,
-    value: Option<Value>,
+#[derive(Deserialize, Serialize, Clone)]
+pub struct AuthAttr {
+    pub key: String,
+    pub value: AuthAttrValue,
     r#type: String,
 }
 
+impl fmt::Display for AuthAttrValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+#[serde(untagged)]
+pub enum AuthAttrValue {
+    String(String),
+    Number(i32)
+}
+
 #[allow(non_camel_case_types)]
-#[derive(Deserialize)]
-enum AuthType {
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub enum AuthType {
     String(String),
     apikey,
     awsv4,
@@ -84,71 +100,73 @@ enum AuthType {
     ntlm,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[allow(non_snake_case)]
-struct Item {
+pub struct Item {
     id: Option<String>,
-    name: Option<String>,
+    pub name: Option<String>,
     description: Option<Value>,
     variable: Option<Value>,
     event: Option<Value>,
-    request: Request,
+    pub request: Request,
     response: Option<Vec<Value>>,
     protocolProfileBehavior: Option<Value>,
 }
 
 //TODOP this might be a good candidate for custom deseralization
 //If a string, the string is assumed to be the request URL and the method is assumed to be 'GET'.
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(untagged)]
-enum Request {
+pub enum Request {
     String(String),
     RequestStruct(RequestStruct),
 }
 
-#[derive(Deserialize)]
-struct RequestStruct {
-    url: Url,
-    auth: Option<Auth>,
+#[derive(Deserialize, Serialize)]
+pub struct RequestStruct {
+    pub url: Url,
+    pub auth: Option<Auth>,
     proxy: Option<Value>,
     certificate: Option<Value>,
-    method: Method,
+    pub method: Method,
     description: Option<Value>,
-    header: Header,
-    body: Option<Body>,
+    pub header: Vec<Header>,
+    pub body: Option<Body>,
 }
 
-#[derive(Deserialize)]
-#[serde(untagged)]
-enum Header {
-    String(String),
-    HeaderList(Vec<HeaderStruct>),
-}
+//NOTE according to postman doc below is correct, though can't think of a case where header value
+//would be a string :think
+//#[derive(Deserialize, Serialize)]
+//#[serde(untagged)]
+//enum Header {
+//    String(String),
+//    HeaderList(Vec<HeaderStruct>),
+//}
 
-#[derive(Deserialize)]
-struct HeaderStruct {
-    key: String,
-    value: String,
-    disabled: Option<bool>,
+#[derive(Deserialize, Serialize)]
+pub struct Header {
+    pub key: String,
+    pub value: String,
+    pub disabled: Option<bool>,
     description: Option<Value>,
 }
 
 //TODOP this again is a good candidate for custom deseralization
 //If object, contains the complete broken-down URL for this request.
 //If string, contains the literal request URL.
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(untagged)]
-enum Url {
+pub enum Url {
     String(String),
     UrlStruct(UrlStruct),
 }
 
-#[derive(Deserialize)]
-struct UrlStruct {
+#[derive(Deserialize, Serialize)]
+pub struct UrlStruct {
     //The string representation of the request URL, including the protocol, host, path, hash, query parameter(s) and path variable(s).
-    raw: String,
+    pub raw: String,
     protocol: Option<String>,
-    host: Host,
+    host: Option<Host>,
     path: Option<Path>,
     port: Option<String>,
     query: Option<Vec<QueryParam>>,
@@ -156,21 +174,21 @@ struct UrlStruct {
     variable: Option<Vec<Value>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(untagged)]
 enum Host {
     String(String),
     VecStr(Vec<String>),
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(untagged)]
 enum Path {
     String(String),
     ArrString(Vec<String>),
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct QueryParam {
     key: Option<String>,
     value: Option<String>,
@@ -178,9 +196,9 @@ struct QueryParam {
     description: Value,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(untagged)]
-enum Method {
+pub enum Method {
     GET,
     PUT,
     POST,
@@ -199,8 +217,8 @@ enum Method {
     String(String),
 }
 
-#[derive(Deserialize)]
-struct Body {
+#[derive(Deserialize, Serialize)]
+pub struct Body {
     mode: Option<BodyMode>,
     raw: String,
     graphql: Option<Value>,
@@ -211,13 +229,13 @@ struct Body {
     disabled: Option<bool>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct File {
     src: Option<String>,
     content: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct UrlEncodedParam {
     key: String,
     value: Option<String>,
@@ -226,7 +244,7 @@ struct UrlEncodedParam {
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 enum BodyMode {
     raw,
     urlencoded,

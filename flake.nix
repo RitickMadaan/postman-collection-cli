@@ -23,6 +23,8 @@
             bacon
             rust-analyzer
             rustfmt
+            cargo-watch
+            pkg-config
           ];
           RUST_SRC_PATH = rustPlatform.rustLibSrc;
         };
