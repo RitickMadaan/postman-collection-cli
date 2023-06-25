@@ -1,5 +1,5 @@
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
-use serde_json::Map;
+use serde_json::{Map, json};
 
 use super::postman::{
     Auth, AuthAttr, AuthType, Body, BodyMode, Header,
@@ -53,18 +53,19 @@ fn set_reqw_basic_auth(
     reqw: reqwest::RequestBuilder,
     attrs: Vec<AuthAttr>,
 ) -> Result<reqwest::RequestBuilder> {
-    let username = attrs
+    let username = json!(attrs
         .clone()
         .into_iter()
         .filter(|a| a.key == "username")
         .next()
         .ok_or("basic auth authorization username not found")?
-        .value;
+        .value);
     let pass = attrs
         .into_iter()
         .filter(|a| a.key == "password")
         .next()
-        .map(|p| p.value);
+        .map(|p| json!(p.value));
+    //NOTE not converting the values attribute values to Value leads to stack overflow
     Ok(reqw.basic_auth(username, pass))
 }
 
@@ -143,8 +144,9 @@ fn set_reqw_query_params(reqw: reqwest::RequestBuilder, url: Url) -> Result<reqw
     Ok(reqw.query(&params))
 }
 
+//NOTE all the above fxns can be part of a trait. In future if there is a need to generate request
+//in formats other than curl/RequestBuilder then move to traits itself.
 impl Request {
-    //TODO separate out struct_to_reqwest fxn to multiple fxns
     fn struct_to_reqwest(
         client: reqwest::Client,
         req: RequestStruct,

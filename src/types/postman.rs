@@ -197,7 +197,7 @@ pub struct QueryParam {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-#[serde(untagged)]
+//#[serde(untagged)]
 pub enum Method {
     GET,
     PUT,
@@ -214,7 +214,7 @@ pub enum Method {
     UNLOCK,
     PROPFIND,
     VIEW,
-    String(String),
+//    String(String),
 }
 
 #[derive(Deserialize, Serialize)]
@@ -252,3 +252,4 @@ pub enum BodyMode {
     file,
     graphql,
 }
+

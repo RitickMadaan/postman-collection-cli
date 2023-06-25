@@ -17,7 +17,8 @@ struct Cli {
     direct: Option<String>,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let pocc = Cli::parse();
     //****************
     let file_path = "../../TestCollection.postman_collection.json";
@@ -31,7 +32,7 @@ fn main() {
         Cli { curl: Some(path), .. } => collection.get_curl(path),
         Cli {
             direct: Some(path), ..
-        } => collection.direct(path),
+        } => {collection.direct(path).await},
         _ => println!("give all the requests found"),
     }
 }
