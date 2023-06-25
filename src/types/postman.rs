@@ -169,7 +169,7 @@ pub struct UrlStruct {
     host: Option<Host>,
     path: Option<Path>,
     port: Option<String>,
-    query: Option<Vec<QueryParam>>,
+    pub query: Option<Vec<QueryParam>>,
     hash: Option<String>,
     variable: Option<Vec<Value>>,
 }
@@ -189,11 +189,11 @@ enum Path {
 }
 
 #[derive(Deserialize, Serialize)]
-struct QueryParam {
-    key: Option<String>,
-    value: Option<String>,
-    disabled: bool,
-    description: Value,
+pub struct QueryParam {
+    pub key: Option<String>,
+    pub value: Option<String>,
+    pub disabled: Option<bool>,
+    description: Option<Value>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -219,14 +219,14 @@ pub enum Method {
 
 #[derive(Deserialize, Serialize)]
 pub struct Body {
-    mode: Option<BodyMode>,
-    raw: String,
+    pub mode: BodyMode,
+    pub raw: Option<String>,
     graphql: Option<Value>,
     urlencoded: Option<Vec<UrlEncodedParam>>,
-    formdata: Option<Value>,
+    pub formdata: Option<Value>,
     file: Option<File>,
     options: Option<Value>,
-    disabled: Option<bool>,
+    pub disabled: Option<bool>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -245,7 +245,7 @@ struct UrlEncodedParam {
 
 #[allow(non_camel_case_types)]
 #[derive(Deserialize, Serialize)]
-enum BodyMode {
+pub enum BodyMode {
     raw,
     urlencoded,
     formdata,

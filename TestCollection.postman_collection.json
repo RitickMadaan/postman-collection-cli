@@ -13,7 +13,7 @@
 			"name": "New Folder",
 			"item": [
 				{
-					"name": "GET example.com",
+					"name": "example.com",
 					"request": {
 						"auth": {
 							"type": "basic",
@@ -44,7 +44,7 @@
 					"response": []
 				},
 				{
-					"name": "GET example.com Copy",
+					"name": "example.com Copy",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -58,6 +58,31 @@
 						},
 						"method": "GET",
 						"header": [],
+						"url": {
+							"raw": "https://example.com",
+							"protocol": "https",
+							"host": [
+								"example",
+								"com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "example.com",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"key1\":\"value\"}"
+						},
 						"url": {
 							"raw": "https://example.com",
 							"protocol": "https",
