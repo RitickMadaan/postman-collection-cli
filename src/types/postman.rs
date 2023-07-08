@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::fmt::{Display, self};
+use std::fmt;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

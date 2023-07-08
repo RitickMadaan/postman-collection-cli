@@ -1,10 +1,10 @@
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
-use serde_json::{Map, json};
+use serde_json::json;
 
 use super::postman::{
     Auth, AuthAttr, AuthType, Body, BodyMode, Header,
     Method::{self, *},
-    Request, RequestStruct, Url, QueryParam, UrlStruct,
+    Request, RequestStruct, Url, UrlStruct,
 };
 use std::{result, str::FromStr, string::String, collections::HashMap};
 
