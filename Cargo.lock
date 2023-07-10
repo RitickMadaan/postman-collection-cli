@@ -158,6 +158,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
 
 [[package]]
+name = "dbg_as_curl"
+version = "1.0.0"
+source = "git+https://gitlab.com/RitickMadaan/dbg_as_curl.git#15c73c0f53a4badbd137875d755ff2de4e03cce4"
+dependencies = [
+ "log",
+ "reqwest",
+]
+
+[[package]]
 name = "encoding_rs"
 version = "0.8.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -603,6 +612,7 @@ name = "pocc"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "dbg_as_curl",
  "reqwest",
  "serde",
  "serde_json",

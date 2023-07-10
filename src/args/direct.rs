@@ -48,8 +48,8 @@ fn serialize_headermap(headermap: &HeaderMap) -> Result<HashMap<String, HeaderVa
 
 impl Collection {
     async fn process(self, path: String) -> Result<ProcessedResponse, String> {
-        let pman_req = get_req_from_coll_item(self.item, &path.split("/").collect())?;
-        let reqw = pman_req.to_reqwest()?;
+        let postman_req = get_req_from_coll_item(self.item, &path.split("/").collect())?;
+        let reqw = postman_req.to_reqwest()?;
         let resp = reqw.send().await.map_err(|x| x.to_string())?;
         let resp_headers = serialize_headermap(resp.headers())?;
         let mut processed_resp = ProcessedResponse {

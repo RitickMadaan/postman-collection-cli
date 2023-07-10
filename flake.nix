@@ -25,6 +25,7 @@
             rustfmt
             cargo-watch
             pkg-config
+            openssl.dev
           ];
           RUST_SRC_PATH = rustPlatform.rustLibSrc;
         };
