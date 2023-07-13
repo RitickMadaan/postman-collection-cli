@@ -7,9 +7,7 @@ description = "A CLI to play with postman collections(v2.1.0) inspired by [passw
 
 [dependencies]
 clap = { version = "4.3.0", features = ["derive"] }
-#dbg_as_curl = { path = "../dbg_as_curl" }
-#dbg_as_curl = "1.0.0"
-dbg_as_curl = { git = "https://gitlab.com/RitickMadaan/dbg_as_curl.git", revision = "15c73c0"}
+dbg_as_curl = { git = "https://gitlab.com/RitickMadaan/dbg_as_curl.git", rev = "15c73c0"}
 reqwest = { version = "0.11.18", features = ["json"]}
 serde = "1.0.163"
 serde_json = "1.0.96"

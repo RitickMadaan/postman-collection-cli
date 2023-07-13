@@ -80,7 +80,7 @@ impl fmt::Display for AuthAttrValue {
 #[serde(untagged)]
 pub enum AuthAttrValue {
     String(String),
-    Number(i32)
+    Number(i32),
 }
 
 #[allow(non_camel_case_types)]
@@ -214,7 +214,7 @@ pub enum Method {
     UNLOCK,
     PROPFIND,
     VIEW,
-//    String(String),
+    //    String(String),
 }
 
 #[derive(Deserialize, Serialize)]
@@ -252,4 +252,3 @@ pub enum BodyMode {
     file,
     graphql,
 }
-

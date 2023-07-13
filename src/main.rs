@@ -1,5 +1,5 @@
-mod types;
 mod args;
+mod types;
 mod utils;
 
 use clap::Parser;
@@ -14,7 +14,7 @@ struct Cli {
     curl: Option<String>,
     ///process the request and return the response
     #[arg(short, long, value_name = "collection/folder/../request_name")]
-    direct: Option<String>,
+    process: Option<String>,
 }
 
 #[tokio::main]
@@ -29,10 +29,13 @@ async fn main() {
     //****************
     //
     match pocc {
-        Cli { curl: Some(path), .. } => collection.get_curl(path),
         Cli {
-            direct: Some(path), ..
-        } => {collection.direct(path).await},
+            curl: Some(path), ..
+        } => collection.get_curl(path),
+        Cli {
+            process: Some(path),
+            ..
+        } => collection.direct(path).await,
         _ => println!("give all the requests found"),
     }
 }

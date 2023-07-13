@@ -1,3 +1,4 @@
+use reqwest as reqw;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde_json::json;
 
@@ -6,12 +7,12 @@ use super::postman::{
     Method::{self, *},
     Request, RequestStruct, Url, UrlStruct,
 };
-use std::{result, str::FromStr, string::String, collections::HashMap};
+use std::{collections::HashMap, result, str::FromStr, string::String};
 
 type Result<T> = result::Result<T, String>;
 
 fn get_reqw_builder(
-    client: reqwest::Client,
+    client: &reqwest::Client,
     url: &Url,
     method: Method,
 ) -> Result<reqwest::RequestBuilder> {
@@ -25,7 +26,7 @@ fn get_reqw_builder(
         GET => client.get(url),
         PUT => client.put(url),
         POST => client.post(url),
-        PATCH => client.post(url),
+        PATCH => client.patch(url),
         DELETE => client.delete(url),
         HEAD => client.head(url),
         _ => return unssuported_method_err,
@@ -53,13 +54,15 @@ fn set_reqw_basic_auth(
     reqw: reqwest::RequestBuilder,
     attrs: Vec<AuthAttr>,
 ) -> Result<reqwest::RequestBuilder> {
-    let username = json!(attrs
-        .clone()
-        .into_iter()
-        .filter(|a| a.key == "username")
-        .next()
-        .ok_or("basic auth authorization username not found")?
-        .value);
+    let username = json!(
+        attrs
+            .clone()
+            .into_iter()
+            .filter(|a| a.key == "username")
+            .next()
+            .ok_or("basic auth authorization username not found")?
+            .value
+    );
     let pass = attrs
         .into_iter()
         .filter(|a| a.key == "password")
@@ -127,9 +130,12 @@ fn set_reqw_body_or_form(
     }
 }
 
-fn set_reqw_query_params(reqw: reqwest::RequestBuilder, url: Url) -> Result<reqwest::RequestBuilder> {
+fn set_reqw_query_params(
+    reqw: reqwest::RequestBuilder,
+    url: Url,
+) -> Result<reqwest::RequestBuilder> {
     let query = match url {
-        Url::UrlStruct(UrlStruct{query: Some(q), ..}) => q,
+        Url::UrlStruct(UrlStruct { query: Some(q), .. }) => q,
         _ => return Ok(reqw),
     };
     let params = query.into_iter().fold(HashMap::new(), |mut map, q| {
@@ -148,10 +154,10 @@ fn set_reqw_query_params(reqw: reqwest::RequestBuilder, url: Url) -> Result<reqw
 //in formats other than curl/RequestBuilder then move to traits itself.
 impl Request {
     fn struct_to_reqwest(
-        client: reqwest::Client,
+        client: &reqwest::Client,
         req: RequestStruct,
     ) -> Result<reqwest::RequestBuilder> {
-        let mut reqw = get_reqw_builder(client, &req.url, req.method)?;
+        let mut reqw = get_reqw_builder(&client, &req.url, req.method)?;
         reqw = set_reqw_headers(reqw, req.header)?;
         reqw = set_reqw_auth(reqw, req.auth)?;
         reqw = set_reqw_body_or_form(reqw, req.body)?;
@@ -159,11 +165,15 @@ impl Request {
         Ok(reqw)
     }
 
-    pub fn to_reqwest(self) -> Result<reqwest::RequestBuilder> {
+    pub fn to_reqwest(self) -> Result<(reqw::Client, reqw::Request)> {
         let reqw_client = reqwest::Client::new();
-        match self {
-            Request::String(url) => Ok(reqw_client.get(url)),
-            Request::RequestStruct(req) => Self::struct_to_reqwest(reqw_client, req),
+
+        let reqw = match self {
+            Request::String(url) => reqw_client.get(url).build(),
+            Request::RequestStruct(req) => Self::struct_to_reqwest(&reqw_client, req)?.build(),
         }
+        .map_err(|e| e.to_string())?;
+
+        Ok((reqw_client, reqw))
     }
 }

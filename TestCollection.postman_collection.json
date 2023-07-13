@@ -14,6 +14,9 @@
 			"item": [
 				{
 					"name": "example.com",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"auth": {
 							"type": "basic",
@@ -32,56 +35,14 @@
 						},
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": "https://example.com",
-							"protocol": "https",
-							"host": [
-								"example",
-								"com"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "example.com Copy",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "asdgsgsgds",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "https://example.com",
-							"protocol": "https",
-							"host": [
-								"example",
-								"com"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "example.com",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"key1\":\"value\"}"
+							"raw": "\"hey baby\"",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
 						},
 						"url": {
 							"raw": "https://example.com",
