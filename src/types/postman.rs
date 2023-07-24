@@ -9,7 +9,7 @@ use serde_json::Value;
 //https://schema.postman.com/collection/json/v2.1.0/draft-07/docs/index.html
 
 #[allow(non_snake_case)]
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Collection {
     info: Information,
     pub item: Vec<Items>,
@@ -18,7 +18,7 @@ pub struct Collection {
     protocolProfileBehavior: Option<Value>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 struct Information {
     name: String,
     r#_postman_id: Option<String>,
@@ -28,7 +28,7 @@ struct Information {
                               //update type to mandatory
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 #[serde(untagged)]
 pub enum Items {
     Item(Item),
@@ -36,7 +36,7 @@ pub enum Items {
 }
 
 #[allow(non_snake_case)]
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Folder {
     pub name: Option<String>,
     description: Option<Value>,
@@ -47,7 +47,7 @@ pub struct Folder {
     protocolProfileBehavior: Option<Value>,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct Auth {
     pub r#type: AuthType,
     noauth: Option<Value>,
@@ -63,7 +63,7 @@ pub struct Auth {
     oauth2: Option<Vec<AuthAttr>>,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct AuthAttr {
     pub key: String,
     pub value: AuthAttrValue,
@@ -84,7 +84,7 @@ pub enum AuthAttrValue {
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 pub enum AuthType {
     String(String),
     apikey,
@@ -100,7 +100,7 @@ pub enum AuthType {
     ntlm,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 #[allow(non_snake_case)]
 pub struct Item {
     id: Option<String>,
@@ -115,14 +115,14 @@ pub struct Item {
 
 //TODOP this might be a good candidate for custom deseralization
 //If a string, the string is assumed to be the request URL and the method is assumed to be 'GET'.
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 #[serde(untagged)]
 pub enum Request {
     String(String),
     RequestStruct(RequestStruct),
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct RequestStruct {
     pub url: Url,
     pub auth: Option<Auth>,
@@ -136,14 +136,14 @@ pub struct RequestStruct {
 
 //NOTE according to postman doc below is correct, though can't think of a case where header value
 //would be a string :think
-//#[derive(Deserialize, Serialize)]
+//#[derive(Deserialize)]
 //#[serde(untagged)]
 //enum Header {
 //    String(String),
 //    HeaderList(Vec<HeaderStruct>),
 //}
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Header {
     pub key: String,
     pub value: String,
@@ -154,14 +154,14 @@ pub struct Header {
 //TODOP this again is a good candidate for custom deseralization
 //If object, contains the complete broken-down URL for this request.
 //If string, contains the literal request URL.
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 #[serde(untagged)]
 pub enum Url {
     String(String),
     UrlStruct(UrlStruct),
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct UrlStruct {
     //The string representation of the request URL, including the protocol, host, path, hash, query parameter(s) and path variable(s).
     pub raw: String,
@@ -174,21 +174,21 @@ pub struct UrlStruct {
     variable: Option<Vec<Value>>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 #[serde(untagged)]
 enum Host {
     String(String),
     VecStr(Vec<String>),
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 #[serde(untagged)]
 enum Path {
     String(String),
     ArrString(Vec<String>),
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct QueryParam {
     pub key: Option<String>,
     pub value: Option<String>,
@@ -196,7 +196,7 @@ pub struct QueryParam {
     description: Option<Value>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Debug)]
 //#[serde(untagged)]
 pub enum Method {
     GET,
@@ -217,7 +217,7 @@ pub enum Method {
     //    String(String),
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Body {
     pub mode: BodyMode,
     pub raw: Option<String>,
@@ -225,17 +225,50 @@ pub struct Body {
     urlencoded: Option<Vec<UrlEncodedParam>>,
     pub formdata: Option<Value>,
     file: Option<File>,
-    options: Option<Value>,
+    pub options: Option<BodyOptions>,
     pub disabled: Option<bool>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
+pub struct BodyOptions {
+    pub raw: BodyLanguageStruct
+}
+
+#[derive(Deserialize)]
+pub struct BodyLanguageStruct {
+    pub language: BodyLanguage
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all(deserialize = "lowercase"))]
+pub enum BodyLanguage {
+    Text,
+    Javascript,
+    Json,
+    Html,
+    Xml
+}
+
+impl fmt::Display for BodyLanguage {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let content_type = match self {
+            Self::Text => "text/plain",
+            Self::Javascript => "application/javascript",
+            Self::Json => "application/json",
+            Self::Html => "text/html",
+            Self::Xml => "application/xml"
+        };
+        write!(f, "{}", content_type)
+    }
+}
+
+#[derive(Deserialize)]
 struct File {
     src: Option<String>,
     content: Option<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 struct UrlEncodedParam {
     key: String,
     value: Option<String>,
@@ -244,7 +277,7 @@ struct UrlEncodedParam {
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub enum BodyMode {
     raw,
     urlencoded,
