@@ -56,7 +56,7 @@ fn set_reqw_basic_auth(
 ) -> Result<reqwest::RequestBuilder> {
     let username = json!(
         attrs
-            .clone()
+            .clone() //TODO can be removed ?
             .into_iter()
             .filter(|a| a.key == "username")
             .next()
