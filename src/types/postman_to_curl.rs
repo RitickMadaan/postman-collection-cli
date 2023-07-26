@@ -62,19 +62,22 @@ impl std::fmt::Display for AsCurl {
             verbose,
         } = self;
 
-        write!(f, "curl ")?;
+        //NOTE postman by default add location option
+        write!(f, "curl --location")?;
 
         if *compress {
-            write!(f, "--compress ")?;
+            write!(f, " --compress")?;
         }
         if *verbose {
-            write!(f, "--verbose ")?;
+            write!(f, " --verbose")?;
         }
 
         let method = req.method();
         if method != "GET" {
-            write!(f, "-X {} ", method)?;
+            write!(f, " -X {}", method)?;
         }
+
+        write!(f, " '{}'", req.url().to_string().replace("'", "%27"))?;
 
         for (name, value) in req.headers() {
             let value = value
@@ -82,21 +85,21 @@ impl std::fmt::Display for AsCurl {
                 .expect("Headers must contain only visible ASCII characters")
                 .replace("'", r"'\''");
 
-            write!(f, "--header '{}: {}' ", name, value)?;
+            write!(f, " \\\n--header '{}: {}'", name, value)?;
         }
 
         if let Some(raw_data) = raw_body {
-            write!(f, "--data '{raw_data}'")?;
+            write!(f, " \\\n--data '{raw_data}'")?;
         }
 
-        write!(f, "'{}'", req.url().to_string().replace("'", "%27"))?;
 
         Ok(())
     }
 }
 
-//impl Postman::Request {
-//    fn to_curl(self) -> Result<String, String> {
-//
-//    }
-//}
+impl postman::Request {
+    pub fn to_curl(self) -> Result<String, String> {
+        let curl = AsCurl::new(self)?;
+        Ok(format!("{curl}"))
+    }
+}
