@@ -55,38 +55,28 @@
 				{
 					"name": "raw_json_body",
 					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "p",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "u",
-									"type": "string"
-								}
-							]
-						},
 						"method": "PUT",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"a\": \"b\"}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\"name\": \"John Doe\", \"email\": \"john.doe@example.com\"}"
 						},
 						"url": {
-							"raw": "https://example.com",
-							"protocol": "https",
+							"raw": "http://example.com/api/users/123",
+							"protocol": "http",
 							"host": [
 								"example",
 								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"123"
 							]
 						}
 					},
@@ -148,7 +138,7 @@
 					"response": []
 				},
 				{
-					"name": "example.com_form-data_request_body",
+					"name": "form_data",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -156,23 +146,26 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "name",
-									"value": "ritick",
+									"key": "a",
+									"value": "b",
 									"type": "default"
 								},
 								{
-									"key": "age",
-									"value": "22",
+									"key": "c",
+									"value": "d",
 									"type": "default"
 								}
 							]
 						},
 						"url": {
-							"raw": "https://example.com",
+							"raw": "https://httpbin.org/post",
 							"protocol": "https",
 							"host": [
-								"example",
-								"com"
+								"httpbin",
+								"org"
+							],
+							"path": [
+								"post"
 							]
 						}
 					},
