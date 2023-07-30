@@ -1,7 +1,7 @@
 use serde_json::Value;
 
 use crate::types::postman::{
-    Auth, Body, BodyLanguage, BodyMode, BodyOptions, Header, Request, RequestStruct, Url,
+    Auth, AuthAttr, Body, BodyLanguage, BodyMode, BodyOptions, Header, Request, RequestStruct, Url,
 };
 use base64::Engine;
 use std::fmt;
@@ -10,7 +10,7 @@ pub struct Curl(pub Request);
 
 impl fmt::Display for Curl {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "curl --location")?;
+        write!(f, "curl --location --globoff")?;
         let RequestStruct {
             method,
             url,
@@ -25,7 +25,7 @@ impl fmt::Display for Curl {
 
         //TODO rename the struct type itself to headers instead of header by using serde
         //attributes
-        //TODO THINK is the cloning here really worth it ? or shall we go without pushing the
+        //TODO THINK if the cloning here is really worth it ? or shall we go without pushing the
         //vector approach and writing on the spot for headers (anyways doing the same in write_body)
         let mut headers: Vec<Header> = header.to_vec();
 
@@ -35,10 +35,13 @@ impl fmt::Display for Curl {
         };
 
         if let Some(auth) = auth {
-            let auth_header = add_auth_headers(auth).unwrap();
+            let auth_header = get_auth_headers(auth).unwrap();
             headers.push(auth_header);
         }
 
+        //NOTE in case a method is not provided using --request to curl but --data is provided,
+        //curl assumes the method by default to be POST but we are still specifing the method below
+        //for clearity and uniformity across requests
         write!(f, " --request {method:?}")?;
         write!(f, " '{url}'")?;
 
@@ -55,37 +58,53 @@ impl fmt::Display for Curl {
     }
 }
 
-fn add_auth_headers(auth: &Auth) -> Result<Header, String> {
-    match auth {
+fn get_auth_headers(auth: &Auth) -> Result<Header, String> {
+    let authorization = match auth {
         Auth {
             basic: Some(basic_auth_params),
             ..
-        } => {
-            let mut authorization = String::from(":");
-            basic_auth_params.into_iter().for_each(|p| {
-                //TODO below code doesn't mandate the following params while it should, should be
-                //rfactored by making Auth type an enum of different Authorization types
-                match p.key.as_str() {
-                    "password" => { 
-                        authorization = format!("{authorization}{}", p.value);
-                    },
-                    "username" => authorization = format!("{}{authorization}", p.value),
-                    _ => (),
-                };
-            });
-            authorization = format!(
-                "Basic {}",
-                base64::engine::general_purpose::STANDARD.encode(authorization.as_str())
-            );
-            Ok(Header {
-                key: String::from("Authorization"),
-                value: authorization,
-                description: None,
-                disabled: None,
-            })
-        }
-        _ => Err(String::from("unssuported auth type"))
-    }
+        } => get_basic_auth_value(basic_auth_params)?,
+        Auth {
+            bearer: Some(bearer_auth_params),
+            ..
+        } => get_bearer_auth_value(bearer_auth_params)?,
+        _ => return Err(String::from("unssuported auth type")),
+    };
+    Ok(Header {
+        key: String::from("Authorization"),
+        value: authorization,
+        description: None,
+        disabled: None,
+    })
+}
+
+fn get_basic_auth_value(basic_auth_params: &Vec<AuthAttr>) -> Result<String, String> {
+    let mut authorization = String::from(":");
+    basic_auth_params.into_iter().for_each(|p| {
+        //TODO below code doesn't mandate the following params while it should, should be
+        //rfactored by making Auth type an enum of different Authorization types
+        match p.key.as_str() {
+            "password" => {
+                authorization = format!("{authorization}{}", p.value);
+            }
+            "username" => authorization = format!("{}{authorization}", p.value),
+            _ => (),
+        };
+    });
+    authorization = format!(
+        "Basic {}",
+        base64::engine::general_purpose::STANDARD.encode(authorization.as_str())
+    );
+    Ok(authorization)
+}
+
+fn get_bearer_auth_value(bearer_auth_params: &Vec<AuthAttr>) -> Result<String, String> {
+    //NOTE once AuthAttr is converted to an enum, playing with vector(which is bad in this case)
+    //should go away
+    bearer_auth_params
+        .first()
+        .map(|attr| format!("Bearer {}", attr.value.to_string()))
+        .ok_or(String::from("empty vector found for bearer auth"))
 }
 
 fn write_body(f: &mut fmt::Formatter<'_>, body: &Body) -> fmt::Result {

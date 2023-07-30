@@ -47,7 +47,8 @@ pub struct Folder {
     protocolProfileBehavior: Option<Value>,
 }
 
-//TODO convert the below structure to an enum
+//TODO convert the below structure to an enum so that while generating auth headers no looping is
+//needed instead normal struct get would work
 #[derive(Deserialize, Clone)]
 pub struct Auth {
     pub r#type: AuthType,
