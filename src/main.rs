@@ -11,7 +11,7 @@ use types::postman::Collection;
 struct Cli {
     ///get curl of the request
     #[arg(short, long, value_name = "collection/folder/../request_name")]
-    curl: Option<String>,
+    old_curl: Option<String>,
     ///process the request and return the response
     #[arg(short, long, value_name = "collection/folder/../request_name")]
     process: Option<String>,
@@ -27,11 +27,10 @@ async fn main() {
         .expect("Unable to parse collection {file_path}");
 
     //****************
-    //
     match pocc {
         Cli {
-            curl: Some(path), ..
-        } => collection.get_curl(path),
+            old_curl: Some(path), ..
+        } => collection.get_old_curl(path),
         Cli {
             process: Some(path),
             ..
