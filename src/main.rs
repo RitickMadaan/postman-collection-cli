@@ -11,6 +11,9 @@ use types::postman::Collection;
 struct Cli {
     ///get curl of the request
     #[arg(short, long, value_name = "collection/folder/../request_name")]
+    curl: Option<String>,
+    ///get curl of the request
+    #[arg(short, long, value_name = "collection/folder/../request_name")]
     old_curl: Option<String>,
     ///process the request and return the response
     #[arg(short, long, value_name = "collection/folder/../request_name")]
@@ -28,6 +31,9 @@ async fn main() {
 
     //****************
     match pocc {
+        Cli {
+            curl: Some(path), ..
+        } => collection.get_curl(path),
         Cli {
             old_curl: Some(path), ..
         } => collection.get_old_curl(path),

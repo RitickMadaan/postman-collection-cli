@@ -147,6 +147,8 @@ pub struct RequestStruct {
 pub struct Header {
     pub key: String,
     pub value: String,
+    //TODO disabled should ideally be just a boolean field, write custom
+    //deseralization to accomplish this
     pub disabled: Option<bool>,
     description: Option<Value>,
 }
@@ -196,7 +198,7 @@ pub struct QueryParam {
     description: Option<Value>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 //#[serde(untagged)]
 pub enum Method {
     GET,
@@ -215,6 +217,12 @@ pub enum Method {
     PROPFIND,
     VIEW,
     //    String(String),
+}
+
+impl fmt::Display for Method {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", serde_json::json!(self))
+    }
 }
 
 #[derive(Deserialize)]
@@ -239,7 +247,7 @@ pub struct BodyLanguageStruct {
     pub language: BodyLanguage
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq)]
 #[serde(rename_all(deserialize = "lowercase"))]
 pub enum BodyLanguage {
     Text,
