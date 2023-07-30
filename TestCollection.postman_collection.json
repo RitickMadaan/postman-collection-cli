@@ -16,16 +16,11 @@
 					"name": "example.com",
 					"request": {
 						"auth": {
-							"type": "basic",
-							"basic": [
+							"type": "bearer",
+							"bearer": [
 								{
-									"key": "password",
-									"value": "p",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "u",
+									"key": "token",
+									"value": "asdgsgsgds",
 									"type": "string"
 								}
 							]

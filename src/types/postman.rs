@@ -47,6 +47,7 @@ pub struct Folder {
     protocolProfileBehavior: Option<Value>,
 }
 
+//TODO convert the below structure to an enum
 #[derive(Deserialize, Clone)]
 pub struct Auth {
     pub r#type: AuthType,
@@ -70,17 +71,20 @@ pub struct AuthAttr {
     r#type: String,
 }
 
-impl fmt::Display for AuthAttrValue {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self)
-    }
-}
-
 #[derive(Deserialize, Serialize, Clone)]
 #[serde(untagged)]
 pub enum AuthAttrValue {
     String(String),
     Number(i32),
+}
+
+impl fmt::Display for AuthAttrValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::String(s) => write!(f, "{}", s),
+            Self::Number(i) => write!(f, "{}", i),
+        }
+    }
 }
 
 #[allow(non_camel_case_types)]
@@ -143,14 +147,14 @@ pub struct RequestStruct {
 //    HeaderList(Vec<HeaderStruct>),
 //}
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Header {
     pub key: String,
     pub value: String,
     //TODO disabled should ideally be just a boolean field, write custom
     //deseralization to accomplish this
     pub disabled: Option<bool>,
-    description: Option<Value>,
+    pub description: Option<Value>,
 }
 
 //TODOP this again is a good candidate for custom deseralization
@@ -217,12 +221,6 @@ pub enum Method {
     PROPFIND,
     VIEW,
     //    String(String),
-}
-
-impl fmt::Display for Method {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", serde_json::json!(self))
-    }
 }
 
 #[derive(Deserialize)]
