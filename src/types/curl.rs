@@ -6,6 +6,8 @@ use crate::types::postman::{
 use base64::Engine;
 use std::fmt;
 
+use super::postman::UrlEncodedParam;
+
 pub struct Curl(pub Request);
 
 impl fmt::Display for Curl {
@@ -114,42 +116,55 @@ fn write_body(f: &mut fmt::Formatter<'_>, body: &Body) -> fmt::Result {
             raw: Some(raw),
             options,
             ..
-        } => {
-            let mut data_arg = String::from("--data-raw");
-            match options {
-                Some(BodyOptions { raw }) if raw.language != BodyLanguage::Json => {
-                    data_arg = String::from("--data");
-                    //TODO move this header as well to be appended the headers vector itself
-                    write_content_type(f, raw.language.to_string())?;
-                }
-                _ => (),
-            };
-            let raw_data = match serde_json::from_str::<Value>(raw) {
-                Ok(raw) => format!("{:#}", raw),
-                Err(_) => raw.to_owned(),
-            };
-            write!(f, " \\\n{data_arg} '{}'", raw_data)?
-        },
+        } => write_raw_body(f, raw, options),
         Body {
             mode: BodyMode::urlencoded,
-            urlencoded: Some(url_encoded_key_value_pairs),
+            urlencoded: Some(form_entries),
             ..
-        } => {
-            write_content_type(f, String::from("application/x-www-form-urlencoded"))?;
-            url_encoded_key_value_pairs.iter().map(|entry| {
-                if entry.disabled != Some(true) {
-                    return write!(f, " \\\n--data-urlencode '{}={}'", entry.key, entry.value);
-                };
-                Ok(())
-            }).collect::<Result<Vec<()>, _>>()?;
-        }
+        } => write_urlencoded_body(f, form_entries),
         _ => panic!("Unsupported body type"),
         //urlencoded => (),
         //formdata => (),
         //file => (),
         //graphql => (),
-    };
+    }
+}
 
+fn write_raw_body(
+    f: &mut fmt::Formatter<'_>,
+    raw: &String,
+    options: &Option<BodyOptions>,
+) -> fmt::Result {
+    let mut data_arg = String::from("--data-raw");
+    match options {
+        Some(BodyOptions { raw }) if raw.language != BodyLanguage::Json => {
+            data_arg = String::from("--data");
+            //TODO move this header as well to be appended the headers vector itself
+            write_content_type(f, raw.language.to_string())?;
+        }
+        _ => (),
+    };
+    let raw_data = match serde_json::from_str::<Value>(raw) {
+        Ok(raw) => format!("{:#}", raw),
+        Err(_) => raw.to_owned(),
+    };
+    write!(f, " \\\n{data_arg} '{}'", raw_data)
+}
+
+fn write_urlencoded_body(
+    f: &mut fmt::Formatter<'_>,
+    form_entries: &Vec<UrlEncodedParam>,
+) -> fmt::Result {
+    write_content_type(f, String::from("application/x-www-form-urlencoded"))?;
+    form_entries
+        .iter()
+        .map(|entry| {
+            if entry.disabled != Some(true) {
+                return write!(f, " \\\n--data-urlencode '{}={}'", entry.key, entry.value);
+            };
+            Ok(())
+        })
+        .collect::<Result<Vec<()>, _>>()?;
     Ok(())
 }
 
