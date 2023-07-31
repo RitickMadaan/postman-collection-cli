@@ -138,16 +138,16 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "formdata",
-							"formdata": [
+							"mode": "urlencoded",
+							"urlencoded": [
 								{
-									"key": "a",
-									"value": "b",
+									"key": "name",
+									"value": "ritick",
 									"type": "default"
 								},
 								{
-									"key": "c",
-									"value": "d",
+									"key": "class",
+									"value": "10th",
 									"type": "default"
 								}
 							]

@@ -229,7 +229,7 @@ pub struct Body {
     pub mode: BodyMode,
     pub raw: Option<String>,
     graphql: Option<Value>,
-    urlencoded: Option<Vec<UrlEncodedParam>>,
+    pub urlencoded: Option<Vec<UrlEncodedParam>>,
     pub formdata: Option<Value>,
     file: Option<File>,
     pub options: Option<BodyOptions>,
@@ -238,12 +238,12 @@ pub struct Body {
 
 #[derive(Deserialize)]
 pub struct BodyOptions {
-    pub raw: BodyLanguageStruct
+    pub raw: BodyLanguageStruct,
 }
 
 #[derive(Deserialize)]
 pub struct BodyLanguageStruct {
-    pub language: BodyLanguage
+    pub language: BodyLanguage,
 }
 
 #[derive(Deserialize, PartialEq)]
@@ -253,7 +253,7 @@ pub enum BodyLanguage {
     Javascript,
     Json,
     Html,
-    Xml
+    Xml,
 }
 
 impl fmt::Display for BodyLanguage {
@@ -263,7 +263,7 @@ impl fmt::Display for BodyLanguage {
             Self::Javascript => "application/javascript",
             Self::Json => "application/json",
             Self::Html => "text/html",
-            Self::Xml => "application/xml"
+            Self::Xml => "application/xml",
         };
         write!(f, "{}", content_type)
     }
@@ -276,10 +276,10 @@ struct File {
 }
 
 #[derive(Deserialize)]
-struct UrlEncodedParam {
-    key: String,
-    value: Option<String>,
-    disabled: Option<bool>,
+pub struct UrlEncodedParam {
+    pub key: String,
+    pub value: String,
+    pub disabled: Option<bool>,
     description: Option<Value>,
 }
 
