@@ -11,7 +11,7 @@ use serde_json::Value;
 #[allow(non_snake_case)]
 #[derive(Deserialize)]
 pub struct Collection {
-    info: Information,
+    pub info: Information,
     pub item: Vec<Items>,
     event: Option<Value>,
     variable: Option<Value>,
@@ -19,8 +19,8 @@ pub struct Collection {
 }
 
 #[derive(Deserialize)]
-struct Information {
-    name: String,
+pub struct Information {
+    pub name: String,
     r#_postman_id: Option<String>,
     description: Option<Value>,
     version: Option<Value>,
@@ -157,7 +157,7 @@ pub struct Attribute {
     //TODO disabled should ideally be just a boolean field, write custom
     //deseralization to accomplish this
     pub disabled: Option<bool>,
-    pub description: Option<Value>
+    pub description: Option<Value>,
 }
 
 //TODOP this again is a good candidate for custom deseralization

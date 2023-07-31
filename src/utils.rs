@@ -1,4 +1,5 @@
-use crate::types::postman::{Folder, Item, Items, Items::*, Request};
+use crate::types::postman::{Collection, Folder, Item, Items, Items::*, Request};
+use std::*;
 
 fn get_req_from_items(items: Items, path: &Vec<&str>) -> Result<Request, String> {
     let item_name = path.get(0).ok_or("Invalid request path")?;
@@ -31,4 +32,50 @@ pub fn get_req_from_coll_item(
         }
     }
     req
+}
+
+fn get_collections_from_current_dir() -> io::Result<Vec<Collection>> {
+    let read_dir = fs::read_dir(env::current_dir()?.as_path())?;
+    let mut collections = Vec::new();
+    read_dir.for_each(|item| {
+        let item = match item {
+            Ok(i) => i,
+            Err(_) => return (),
+        };
+        let file_type = item.file_type();
+        let file_name = item.file_name().into_string();
+        let json_file_regex = regex::Regex::new(r"\.json$");
+        match (file_type, file_name, json_file_regex) {
+            (Ok(file_type), Ok(file_name), Ok(json_regex))
+                if !file_type.is_dir() && json_regex.is_match(file_name.as_str()) =>
+            {
+                let collection: Collection = match fs::read_to_string(item.path())
+                    .map(|f| serde_json::from_str(f.as_str()))
+                {
+                    Ok(Ok(coll)) => coll,
+                    _ => return (),
+                };
+                collections.push(collection)
+            }
+            _ => return (),
+        }
+    });
+    Ok(collections)
+}
+
+pub fn get_req_from_current_dir(path: &Vec<&str>) -> Result<Request, String> {
+    let (collection_name, path) = path.split_first().ok_or(String::from("invalid path"))?;
+    //    path = vec!(path.to_owned());
+    for collection in get_collections_from_current_dir()
+        .map_err(|e| e.to_string())?
+        .into_iter()
+    {
+        if collection.info.name == collection_name.to_owned() {
+            match get_req_from_coll_item(collection.item, &path.to_vec()) {
+                Ok(req) => return Ok(req),
+                _ => continue,
+            }
+        }
+    }
+    Err(String::from("not found"))
 }

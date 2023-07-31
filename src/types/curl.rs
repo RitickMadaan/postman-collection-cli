@@ -1,7 +1,8 @@
 use serde_json::Value;
 
 use crate::types::postman::{
-    self, Auth, AuthAttr, Body, BodyLanguage, BodyMode, BodyOptions, Header, Request, RequestStruct, Url,
+    self, Auth, AuthAttr, Body, BodyLanguage, BodyMode, BodyOptions, Header, Request,
+    RequestStruct, Url,
 };
 use base64::Engine;
 use std::fmt;
@@ -127,7 +128,8 @@ fn write_body(f: &mut fmt::Formatter<'_>, body: &Body) -> fmt::Result {
         } => write_form_data(f, form_entries),
         _ => {
             println!("ritick {body:?}");
-            panic!("Unsupported body type")},
+            panic!("Unsupported body type")
+        }
         //urlencoded => (),
         //formdata => (),
         //file => (),
@@ -175,8 +177,8 @@ fn write_urlencoded_body(
 
 fn write_form_data(
     f: &mut fmt::Formatter<'_>,
-    form_entries: &Vec<postman::Attribute>
-    ) -> fmt::Result {
+    form_entries: &Vec<postman::Attribute>,
+) -> fmt::Result {
     form_entries
         .iter()
         .map(|entry| {

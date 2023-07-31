@@ -3,8 +3,7 @@ mod types;
 mod utils;
 
 use clap::Parser;
-use std::fs;
-use types::postman::Collection;
+use types::curl::Curl;
 
 #[derive(Parser)]
 #[command(author, version)] // from Cargo.toml
@@ -14,16 +13,11 @@ struct Cli {
     curl: String,
 }
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let pocc = Cli::parse();
 
-    //****************
-    let file_path = "../../TestCollection.postman_collection.json";
-    let file_content = fs::read_to_string(file_path).unwrap();
-    let collection: Collection = serde_json::from_str(file_content.as_str())
-        .expect("Unable to parse collection {file_path}");
-    //****************
-
-    collection.get_curl(pocc.curl)
+    match utils::get_req_from_current_dir(&pocc.curl.split("/").collect()) {
+        Ok(req) => println!("{}", Curl(req)),
+        Err(e) => println!("{e}"),
+    }
 }
