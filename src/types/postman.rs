@@ -148,14 +148,16 @@ pub struct RequestStruct {
 //    HeaderList(Vec<HeaderStruct>),
 //}
 
-#[derive(Deserialize, Clone)]
-pub struct Header {
+pub type Header = Attribute;
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Attribute {
     pub key: String,
     pub value: String,
     //TODO disabled should ideally be just a boolean field, write custom
     //deseralization to accomplish this
     pub disabled: Option<bool>,
-    pub description: Option<Value>,
+    pub description: Option<Value>
 }
 
 //TODOP this again is a good candidate for custom deseralization
@@ -224,29 +226,29 @@ pub enum Method {
     //    String(String),
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Body {
     pub mode: BodyMode,
     pub raw: Option<String>,
     graphql: Option<Value>,
-    pub urlencoded: Option<Vec<UrlEncodedParam>>,
-    pub formdata: Option<Value>,
+    pub urlencoded: Option<Vec<Attribute>>,
+    pub formdata: Option<Vec<Attribute>>,
     file: Option<File>,
     pub options: Option<BodyOptions>,
     pub disabled: Option<bool>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct BodyOptions {
     pub raw: BodyLanguageStruct,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct BodyLanguageStruct {
     pub language: BodyLanguage,
 }
 
-#[derive(Deserialize, PartialEq)]
+#[derive(Deserialize, PartialEq, Debug)]
 #[serde(rename_all(deserialize = "lowercase"))]
 pub enum BodyLanguage {
     Text,
@@ -269,22 +271,14 @@ impl fmt::Display for BodyLanguage {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct File {
     src: Option<String>,
     content: Option<String>,
 }
 
-#[derive(Deserialize)]
-pub struct UrlEncodedParam {
-    pub key: String,
-    pub value: String,
-    pub disabled: Option<bool>,
-    description: Option<Value>,
-}
-
 #[allow(non_camel_case_types)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub enum BodyMode {
     raw,
     urlencoded,

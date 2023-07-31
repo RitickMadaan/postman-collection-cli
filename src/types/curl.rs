@@ -1,12 +1,10 @@
 use serde_json::Value;
 
 use crate::types::postman::{
-    Auth, AuthAttr, Body, BodyLanguage, BodyMode, BodyOptions, Header, Request, RequestStruct, Url,
+    self, Auth, AuthAttr, Body, BodyLanguage, BodyMode, BodyOptions, Header, Request, RequestStruct, Url,
 };
 use base64::Engine;
 use std::fmt;
-
-use super::postman::UrlEncodedParam;
 
 pub struct Curl(pub Request);
 
@@ -122,7 +120,14 @@ fn write_body(f: &mut fmt::Formatter<'_>, body: &Body) -> fmt::Result {
             urlencoded: Some(form_entries),
             ..
         } => write_urlencoded_body(f, form_entries),
-        _ => panic!("Unsupported body type"),
+        Body {
+            mode: BodyMode::formdata,
+            formdata: Some(form_entries),
+            ..
+        } => write_form_data(f, form_entries),
+        _ => {
+            println!("ritick {body:?}");
+            panic!("Unsupported body type")},
         //urlencoded => (),
         //formdata => (),
         //file => (),
@@ -153,7 +158,7 @@ fn write_raw_body(
 
 fn write_urlencoded_body(
     f: &mut fmt::Formatter<'_>,
-    form_entries: &Vec<UrlEncodedParam>,
+    form_entries: &Vec<postman::Attribute>,
 ) -> fmt::Result {
     write_content_type(f, String::from("application/x-www-form-urlencoded"))?;
     form_entries
@@ -161,6 +166,22 @@ fn write_urlencoded_body(
         .map(|entry| {
             if entry.disabled != Some(true) {
                 return write!(f, " \\\n--data-urlencode '{}={}'", entry.key, entry.value);
+            };
+            Ok(())
+        })
+        .collect::<Result<Vec<()>, _>>()?;
+    Ok(())
+}
+
+fn write_form_data(
+    f: &mut fmt::Formatter<'_>,
+    form_entries: &Vec<postman::Attribute>
+    ) -> fmt::Result {
+    form_entries
+        .iter()
+        .map(|entry| {
+            if entry.disabled != Some(true) {
+                return write!(f, " \\\n--form '{}=\"{}\"'", entry.key, entry.value);
             };
             Ok(())
         })

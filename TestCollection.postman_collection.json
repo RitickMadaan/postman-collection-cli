@@ -133,6 +133,50 @@
 					"response": []
 				},
 				{
+					"name": "form-data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "alloo-baingan",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "ritick",
+									"type": "default"
+								},
+								{
+									"key": "class",
+									"value": "12th",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://httpbin.org/post",
+							"protocol": "https",
+							"host": [
+								"httpbin",
+								"org"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "x-www-form-urlencoded",
 					"request": {
 						"method": "POST",
