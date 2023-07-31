@@ -120,7 +120,7 @@ fn write_body(f: &mut fmt::Formatter<'_>, body: &Body) -> fmt::Result {
                 Some(BodyOptions { raw }) if raw.language != BodyLanguage::Json => {
                     data_arg = String::from("--data");
                     //TODO move this header as well to be appended the headers vector itself
-                    write!(f, " \\\n--header 'Content-Type: {}'", raw.language)?
+                    write_content_type(f, raw.language.to_string())?;
                 }
                 _ => (),
             };
@@ -129,6 +129,19 @@ fn write_body(f: &mut fmt::Formatter<'_>, body: &Body) -> fmt::Result {
                 Err(_) => raw.to_owned(),
             };
             write!(f, " \\\n{data_arg} '{}'", raw_data)?
+        },
+        Body {
+            mode: BodyMode::urlencoded,
+            urlencoded: Some(url_encoded_key_value_pairs),
+            ..
+        } => {
+            write_content_type(f, String::from("application/x-www-form-urlencoded"))?;
+            url_encoded_key_value_pairs.iter().map(|entry| {
+                if entry.disabled != Some(true) {
+                    return write!(f, " \\\n--data-urlencode '{}={}'", entry.key, entry.value);
+                };
+                Ok(())
+            }).collect::<Result<Vec<()>, _>>()?;
         }
         _ => panic!("Unsupported body type"),
         //urlencoded => (),
@@ -138,4 +151,8 @@ fn write_body(f: &mut fmt::Formatter<'_>, body: &Body) -> fmt::Result {
     };
 
     Ok(())
+}
+
+fn write_content_type(f: &mut fmt::Formatter<'_>, content_type: String) -> fmt::Result {
+    write!(f, " \\\n--header 'Content-Type: {content_type}'")
 }
