@@ -10,6 +10,11 @@ repository = "https://github.com/RitickMadaan/postman-collection-cli"
 readme = "README.md"
 categories = ["command-line-utilities"]
 keywords = ["cli", "postman", "collection", "curl", "passwordstore"]
+exclude = [
+    "*.nix",
+    ".envrc",
+    "TestCollection*"
+]
 
 [dependencies]
 base64 = "0.21.2"
