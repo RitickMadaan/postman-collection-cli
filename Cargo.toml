@@ -1,9 +1,15 @@
 [package]
 name = "pocc"
 version = "0.1.0"
-edition = "2021"
 authors = [ "Ritick Madaan <ritickmadaan57@gmail.com>" ]
+license = "CC0-1.0"
+edition = "2021"
 description = "A CLI to play with postman collections(v2.1.0) inspired by [password-store](https://www.passwordstore.org/)"
+homepage = "https://github.com/RitickMadaan/postman-collection-cli"
+repository = "https://github.com/RitickMadaan/postman-collection-cli"
+readme = "README.md"
+categories = ["command-line-utilities"]
+keywords = ["cli", "postman", "collection", "curl", "passwordstore"]
 
 [dependencies]
 base64 = "0.21.2"
