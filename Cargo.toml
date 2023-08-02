@@ -1,6 +1,6 @@
 [package]
 name = "pocc"
-version = "0.1.0"
+version = "0.1.1"
 authors = [ "Ritick Madaan <ritickmadaan57@gmail.com>" ]
 license = "CC0-1.0"
 edition = "2021"
