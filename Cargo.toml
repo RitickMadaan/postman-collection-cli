@@ -15,6 +15,15 @@ exclude = [
     ".envrc",
     "TestCollection*"
 ]
+default-run = "pocc"
+
+[[bin]]
+name = "pocc"
+path = "src/main.rs"
+
+[[bin]]
+name = "pocc_shell_completion"
+path = "src/shell_completion.rs"
 
 [dependencies]
 base64 = "0.21.2"
