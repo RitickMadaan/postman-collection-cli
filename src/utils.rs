@@ -79,3 +79,84 @@ pub fn get_req_from_current_dir(path: &Vec<&str>) -> Result<Request, String> {
     }
     Err(String::from("not found"))
 }
+
+fn item_names_from_items(items: Vec<Items>) -> Vec<String> {
+    let mut sub_paths = Vec::new();
+    items.into_iter().for_each(|item| match item {
+        Items::Item(Item { name, .. }) => sub_paths.push(name.unwrap_or(String::from(""))),
+        Items::Folder(Folder { name, .. }) => sub_paths.push(name.unwrap_or(String::from(""))),
+        _ => (),
+    });
+    sub_paths
+}
+
+fn get_items_with_name(item_name: &&str, items: Vec<Items>) -> Vec<Items> {
+    items
+        .into_iter()
+        .filter(|item| match item {
+            Items::Item(Item {
+                name: Some(name), ..
+            }) if &name.as_str() == item_name => true,
+            Items::Folder(Folder {
+                name: Some(name), ..
+            }) if &name.as_str() == item_name => true,
+            _ => false,
+        })
+        .collect()
+}
+
+pub fn next_sub_paths_in_collection_item(
+    item: Items,
+    path: &Vec<&str>,
+) -> Result<Vec<String>, String> {
+    match (path.split_first(), item) {
+        (_, Items::Item(_)) => Ok(Vec::new()),
+        (None, Items::Folder(Folder { item, .. })) => Ok(item_names_from_items(item)),
+        (Some((sub_item_name, path)), Items::Folder(Folder { item: items, .. })) => {
+            let matching_items = get_items_with_name(sub_item_name, items);
+            Ok(matching_items
+                .into_iter()
+                .map(|item| {
+                    next_sub_paths_in_collection_item(item, &path.to_vec()).unwrap_or(Vec::new())
+                })
+                .collect::<Vec<Vec<String>>>()
+                .concat())
+        }
+    }
+}
+
+pub fn next_sub_path_in_collection(
+    collection: Collection,
+    path: &Vec<&str>,
+) -> Result<Vec<String>, String> {
+    let items = collection.item;
+    match path.split_first() {
+        None => Ok(item_names_from_items(items)),
+        Some((item_name, path)) => {
+            let items = get_items_with_name(item_name, items);
+            Ok(items
+                .into_iter()
+                .map(|item| next_sub_paths_in_collection_item(item, &path.to_vec()))
+                .collect::<Result<Vec<_>, String>>()?
+                .concat())
+        }
+    }
+}
+
+pub fn get_next_sub_paths_in_curr_dir(path: &Vec<&str>) -> Result<Vec<String>, String> {
+    let collections_in_curr_dir = get_collections_from_current_dir().map_err(|e| e.to_string())?;
+    match path.split_first() {
+        None => Ok(collections_in_curr_dir
+            .into_iter()
+            .map(|collection| collection.info.name)
+            .collect()),
+        Some((collection_name, req_path)) => Ok(collections_in_curr_dir
+            .into_iter()
+            .filter(|collection| collection.info.name == collection_name.clone())
+            .map(|collection| {
+                next_sub_path_in_collection(collection, &req_path.to_vec()).unwrap_or(Vec::new())
+            })
+            .collect::<Vec<Vec<String>>>()
+            .concat()),
+    }
+}
