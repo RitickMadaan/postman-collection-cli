@@ -1,7 +1,7 @@
 use crate::types::postman::{Collection, Folder, Item, Items, Items::*, Request};
 use std::*;
 
-fn get_req_from_items(items: Items, path: &Vec<&str>) -> Result<Request, String> {
+fn get_req_from_items(items: Items, path: &Vec<String>) -> Result<Request, String> {
     let item_name = path.get(0).ok_or("Invalid request path")?;
     let err = Err(format!("{item_name} not found"));
     match (items, path.len()) {
@@ -22,7 +22,7 @@ fn get_req_from_items(items: Items, path: &Vec<&str>) -> Result<Request, String>
 
 pub fn get_req_from_coll_item(
     folder_item: Vec<Items>,
-    path: &Vec<&str>,
+    path: &Vec<String>,
 ) -> Result<Request, String> {
     let mut req = Err(String::from("not found"));
     for items in folder_item.into_iter() {
@@ -63,7 +63,7 @@ fn get_collections_from_current_dir() -> io::Result<Vec<Collection>> {
     Ok(collections)
 }
 
-pub fn get_req_from_current_dir(path: &Vec<&str>) -> Result<Request, String> {
+pub fn get_req_from_current_dir(path: &Vec<String>) -> Result<Request, String> {
     let (collection_name, path) = path.split_first().ok_or(String::from("invalid path"))?;
     //    path = vec!(path.to_owned());
     for collection in get_collections_from_current_dir()
@@ -79,3 +79,32 @@ pub fn get_req_from_current_dir(path: &Vec<&str>) -> Result<Request, String> {
     }
     Err(String::from("not found"))
 }
+
+fn get_items_path_list(items: Vec<Items>, current_path: String, items_path_list: &mut Vec<String>) {
+    let get_item_path = |item_name: Option<String>| {
+        format!(
+            "{current_path}/{}",
+            item_name.unwrap_or(String::from("no_name"))
+        )
+    };
+    for item in items.into_iter() {
+        match item {
+            Items::Item(item) => items_path_list.push(get_item_path(item.name)),
+            Items::Folder(folder) => {
+                get_items_path_list(folder.item, get_item_path(folder.name), items_path_list)
+            }
+        }
+    }
+}
+
+pub fn reqs_paths_in_current_dir() -> Result<Vec<String>, String> {
+    let collections = get_collections_from_current_dir().map_err(|e| e.to_string())?;
+    let mut reqs_path_list = Vec::new();
+    for collection in collections.into_iter() {
+        let current_path = collection.info.name;
+        let items = collection.item;
+        get_items_path_list(items, current_path, &mut reqs_path_list);
+    }
+    Ok(reqs_path_list)
+}
+
