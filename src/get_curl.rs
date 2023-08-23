@@ -10,14 +10,12 @@ fn get_user_selected_req() -> Result<Request, String> {
         .with_render_config(prompt_render_config)
         .prompt()
         .map_err(|e| e.to_string())?;
-    let req = get_req_from_current_dir(&selected_req_path.split("/").map(|s| s.to_string()).collect())?;
-    println!("{}", Curl(req));
-    Err(String::from(""))
+    get_req_from_current_dir(&selected_req_path.split("/").map(|s| s.to_string()).collect())
 }
 
 pub fn get_curl() {
     match get_user_selected_req() {
         Ok(req) => println!("{}", Curl(req)),
-        Err(x) => println!("Error: {x}"),
+        Err(e) => println!("Error: {e}"),
     }
 }
