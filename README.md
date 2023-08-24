@@ -10,15 +10,30 @@
 
   cmd:
   ```bash
-    pocc -c "<CollectionName>/<Folder>/*/<RequestName>"
+    pocc get-curl
   ```
-  output: 
+  select the request:
+  ```bash
+  Select request from current directory:
+  > TestCollection/New Folder/example.com
+    TestCollection/New Folder/raw_json_body
+    TestCollection/New Folder/raw_javascript_body
+    TestCollection/New Folder/example.com
+    TestCollection/New Folder/form-data
+    TestCollection/New Folder/x-www-form-urlencoded
+    TestCollection/New Folder/raw_text_body
+    [↑↓ to move, enter to select, type to filter]
+  ```
+
+  output:
   ```bash
     curl --location --globoff --request POST 'https://example.com' \
     --header 'Authorization: Bearer 12345678' \
     --header 'Content-Type: text/plain' \
     --data 'hey there'
   ```
+  [demo.webm](https://github.com/RitickMadaan/postman-collection-cli/assets/43561186/52116e6b-e53f-4d53-9154-5ef4f1a74e16)<h2>
+  
 ## Upcoming features
 * auto completion
 * insert in a collection from curl
