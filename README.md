@@ -35,7 +35,6 @@
   [demo.webm](https://github.com/RitickMadaan/postman-collection-cli/assets/43561186/52116e6b-e53f-4d53-9154-5ef4f1a74e16)<h2>
   
 ## Upcoming features
-* auto completion
 * insert in a collection from curl
     
 and more, take a look at [issues](https://github.com/RitickMadaan/postman-collection-cli/issues) to find out
