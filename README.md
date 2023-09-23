@@ -32,7 +32,6 @@
     --header 'Content-Type: text/plain' \
     --data 'hey there'
   ```
-  [demo.webm](https://github.com/RitickMadaan/postman-collection-cli/assets/43561186/52116e6b-e53f-4d53-9154-5ef4f1a74e16)
 
 * ### Convert to Curl and Copy to Clipboard
 
@@ -40,9 +39,12 @@
   ```bash
     pocc -c curl
   ```
-  select the request from the same interactive UI as above and it's curl will be copied to clipbaord. 
-  
+  select a request from the interactive UI to copy it's curl to clipbaord.
+
+[demo.webm](https://github.com/RitickMadaan/postman-collection-cli/assets/43561186/adfc1b74-f7e7-4665-b783-44e9f9224299)
+
 ## Upcoming features
+
 * insert in a collection from curl
     
 and more, take a look at [issues](https://github.com/RitickMadaan/postman-collection-cli/issues) to find out
