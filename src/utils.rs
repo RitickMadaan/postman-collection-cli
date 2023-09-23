@@ -108,3 +108,7 @@ pub fn reqs_paths_in_current_dir() -> Result<Vec<String>, String> {
     Ok(reqs_path_list)
 }
 
+pub fn copy_to_clipbaord(x: impl std::fmt::Display) -> Result<(), arboard::Error> {
+    let mut clipboard = arboard::Clipboard::new()?;
+    clipboard.set_text(format!("{x}"))
+}

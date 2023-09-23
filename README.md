@@ -10,7 +10,7 @@
 
   cmd:
   ```bash
-    pocc get-curl
+    pocc curl
   ```
   select the request:
   ```bash

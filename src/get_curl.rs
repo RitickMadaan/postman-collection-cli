@@ -13,9 +13,6 @@ fn get_user_selected_req() -> Result<Request, String> {
     get_req_from_current_dir(&selected_req_path.split("/").map(|s| s.to_string()).collect())
 }
 
-pub fn get_curl() {
-    match get_user_selected_req() {
-        Ok(req) => println!("{}", Curl(req)),
-        Err(e) => println!("Error: {e}"),
-    }
+pub fn get_curl() -> Result<Curl, String> {
+    get_user_selected_req().map(|req| Curl(req))
 }
